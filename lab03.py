@@ -49,7 +49,7 @@ def a_star_search(graph, start, goal):
     g_cost = {start: 0}
 
     while to_search:
-        current_node = heapq.heappop(to_search)
+        _, current_node = heapq.heappop(to_search)
 
         if current_node == goal:
             path = [current_node]
