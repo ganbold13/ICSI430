@@ -70,6 +70,22 @@ def a_star_search(graph, start, goal):
 
     return None
 
+def greedy_search(graph, start, goal, heuristic):
+    path = [start]
+    
+    while path[-1] != goal:
+        current_node = path[-1]
+        neighbors = graph[current_node]
+        
+        if not neighbors:
+            return None
+        
+        next_node = min(neighbors, key=lambda neighbor: heuristic(neighbor))
+        
+        path.append(next_node)
+    
+    return path
+
 start_node = "Arad"
 goal_node = "Bucharest"
 
@@ -77,5 +93,12 @@ path = a_star_search(romania_map.graph_dict, start_node, goal_node)
 
 if path:
     print("A star Path:", path)
+else:
+    print("No path found.")
+
+path = greedy_search(romania_map.graph_dict, start_node, goal_node, heuristic)
+
+if path:
+    print("Greedy Path:", path)
 else:
     print("No path found.")
