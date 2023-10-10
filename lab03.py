@@ -92,13 +92,13 @@ goal_node = "Bucharest"
 path = a_star_search(romania_map.graph_dict, start_node, goal_node)
 
 if path:
-    print("A star Path:", path)
+    print("A star Path:", path, romania_map.path_weight(path))
 else:
     print("No path found.")
 
 path = greedy_search(romania_map.graph_dict, start_node, goal_node, heuristic)
 
 if path:
-    print("Greedy Path:", path)
+    print("Greedy Path:", path, romania_map.path_weight(path))
 else:
     print("No path found.")
