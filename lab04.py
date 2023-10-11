@@ -1,5 +1,8 @@
 import math
 import re
+import os
+# unigram = 1 1 ugeer
+# bag of words = 1 ug olon dawhatswal tuhain ug tomrono
 
 # Define a function to tokenize text into words
 def tokenize(text):
@@ -54,13 +57,33 @@ def classify_naive_bayes(email, spam_word_counts, ham_word_counts, spam_total_wo
 
     return 'spam' if spam_score > ham_score else 'ham'
 
+ham_data = []
+spam_data = []
+
+ham_folder_path = 'spam_data/train/ham'
+spam_folder_path = 'spam_data/train/spam'
+
+for filename in os.listdir(ham_folder_path):
+    file_path = os.path.join(ham_folder_path, filename)
+    
+    # Check if the file is a .txt file
+    if filename.endswith('.txt'):
+        with open(file_path, 'r') as file:
+            text = file.read()
+            ham_data.append((text, "ham")) 
+
+for filename in os.listdir(spam_folder_path):
+    file_path = os.path.join(spam_folder_path, filename)
+    
+    # Check if the file is a .txt file
+    if filename.endswith('.txt'):
+        with open(file_path, 'r') as file:
+            print(file_path)
+            text = file.read()
+            spam_data.append((text, "spam"))
+
 # Sample training data (you should replace this with your own data)
-training_data = [
-    ("Buy our new product!", "spam"),
-    ("Hi, how are you?", "ham"),
-    ("You've won a prize!", "spam"),
-    ("Meeting tomorrow at 10 AM.", "ham"),
-]
+training_data = ham_data + spam_data
 
 # Train the Naive Bayes classifier
 spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior = train_naive_bayes(training_data)
