@@ -115,3 +115,29 @@ for mail in ham_test_data:
 print("Ham data-s ham datag oloh huwi :" , ham_count/ (ham_count+spam_count) * 100)
 
 
+spam_test_data = []
+spam_folder_path = 'spam_data/dev/spam'
+
+for filename in os.listdir(spam_folder_path):
+    file_path = os.path.join(spam_folder_path, filename)
+
+    # Check if the file is a .txt file
+    if filename.endswith('.txt'):
+        with open(file_path, 'r', encoding='latin-1') as file:
+            text = file.read()
+            spam_test_data.append(text)
+
+ham_count = 0
+spam_count = 0
+
+for mail in spam_test_data:
+# Classify the sample email
+    classification = classify_naive_bayes(mail, spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha)
+    if classification == 'spam':
+        spam_count+=1
+    else:
+        ham_count+=1
+
+print("Spam data-s spam datag oloh huwi :" , spam_count/ (ham_count+spam_count) * 100)
+
+
