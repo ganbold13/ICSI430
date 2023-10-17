@@ -2,11 +2,14 @@ import math
 import re
 import os
 
-# Define a function to tokenize text into words
+################### IMPLEMENTATION REGION ########################
+
+# tokenize text into words
 def tokenize(text):
     return re.findall(r'\b\w+\b', text.lower())
 
-# Define a function to train a Naive Bayes classifier with Laplace smoothing
+# train a Naive Bayes classifier with Laplace smoothing
+# Laplace smoothing helps avoid zero probabilities for words that don't appear in the training data for a particular class. 
 def train_naive_bayes(training_data, alpha=1.0):
     spam_word_counts = {}
     ham_word_counts = {}
@@ -15,8 +18,9 @@ def train_naive_bayes(training_data, alpha=1.0):
     spam_email_count = 0
     ham_email_count = 0
 
-    vocabulary = set()  # Keep track of unique words
+    vocabulary = set()  # unique words
 
+    # bag of words using unigram
     for email, label in training_data:
         words = tokenize(email)
         if label == 'spam':
@@ -32,33 +36,35 @@ def train_naive_bayes(training_data, alpha=1.0):
                 ham_total_words += 1
                 vocabulary.add(word)
 
-    # Calculate prior probabilities
+    # P(spam | w1, w2, .. wN) = P(spam)*П P(Wi | spam)
     spam_prior = spam_email_count / (spam_email_count + ham_email_count)
+    # P(ham | w1, w2, ... wN) = P(ham)* П P(wi | ham) 
     ham_prior = ham_email_count / (spam_email_count + ham_email_count)
 
     return spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha
 
-# Define a function to classify an email as spam or ham with Laplace smoothing
+# classify an email as spam or ham with Laplace smoothing
 def classify_naive_bayes(email, spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha):
     words = tokenize(email)
     spam_score = 0
     ham_score = 0
 
     for word in words:
-        # Calculate the conditional probabilities using Laplace smoothing
+        # P(Wi | spam) = N wi | spam + a / N spam + a * N vocab
         spam_prob = (spam_word_counts.get(word, 0) + alpha) / (spam_total_words + alpha * len(vocabulary))
         ham_prob = (ham_word_counts.get(word, 0) + alpha) / (ham_total_words + alpha * len(vocabulary))
 
-        # Use logarithms to avoid underflow
+        # using logarithms to avoid underflow
+        # underflow is numerical issue of way too small probablities
         spam_score += math.log(spam_prob)
         ham_score += math.log(ham_prob)
 
-    # Apply the priors
     spam_score += math.log(spam_prior)
     ham_score += math.log(ham_prior)
 
     return 'spam' if spam_score > ham_score else 'ham'
 
+################## TRAIN REGION ##################
 ham_data = []
 spam_data = []
 
@@ -68,7 +74,7 @@ spam_folder_path = 'spam_data/train/spam'
 for filename in os.listdir(ham_folder_path):
     file_path = os.path.join(ham_folder_path, filename)
 
-    # Check if the file is a .txt file
+    # check txt file and utf character 
     if filename.endswith('.txt'):
         with open(file_path, 'r', encoding='latin-1') as file:
             text = file.read()
@@ -77,25 +83,24 @@ for filename in os.listdir(ham_folder_path):
 for filename in os.listdir(spam_folder_path):
     file_path = os.path.join(spam_folder_path, filename)
 
-    # Check if the file is a .txt file
+    # check txt file and utf character 
     if filename.endswith('.txt'):
         with open(file_path, 'r', encoding='latin-1') as file:
             text = file.read()
             spam_data.append((text, "spam"))
 
-# Sample training data (you should replace this with your own data)
 training_data = ham_data + spam_data
 
-# Train the Naive Bayes classifier with Laplace smoothing
+# Train the Naive Bayes classifier, alpha is Laplace smoothing
 spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha = train_naive_bayes(training_data)
 
+# testing our algorithm at dev data
 ham_test_data = []
 ham_folder_path = 'spam_data/dev/ham'
 
 for filename in os.listdir(ham_folder_path):
     file_path = os.path.join(ham_folder_path, filename)
 
-    # Check if the file is a .txt file
     if filename.endswith('.txt'):
         with open(file_path, 'r', encoding='latin-1') as file:
             text = file.read()
@@ -105,14 +110,13 @@ ham_count = 0
 spam_count = 0
 
 for mail in ham_test_data:
-# Classify the sample email
     classification = classify_naive_bayes(mail, spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha)
     if classification == 'ham':
         ham_count+=1
     else:
         spam_count+=1
 
-print("Ham data-s ham datag oloh huwi :" , ham_count/ (ham_count+spam_count) * 100)
+print("Percentage of finding ham from ham data :" , ham_count/ (ham_count+spam_count) * 100)
 
 
 spam_test_data = []
@@ -121,7 +125,6 @@ spam_folder_path = 'spam_data/dev/spam'
 for filename in os.listdir(spam_folder_path):
     file_path = os.path.join(spam_folder_path, filename)
 
-    # Check if the file is a .txt file
     if filename.endswith('.txt'):
         with open(file_path, 'r', encoding='latin-1') as file:
             text = file.read()
@@ -131,13 +134,12 @@ ham_count = 0
 spam_count = 0
 
 for mail in spam_test_data:
-# Classify the sample email
     classification = classify_naive_bayes(mail, spam_word_counts, ham_word_counts, spam_total_words, ham_total_words, spam_prior, ham_prior, vocabulary, alpha)
     if classification == 'spam':
         spam_count+=1
     else:
         ham_count+=1
 
-print("Spam data-s spam datag oloh huwi :" , spam_count/ (ham_count+spam_count) * 100)
+print("Percentage of finding spam from spam data :" , spam_count/ (ham_count+spam_count) * 100)
 
 
