@@ -1,6 +1,9 @@
 # Perceptron learning algorithm 
+# sepal_labels = ["sepal_length","sepal_width","petal_length","petal_width"]
 
-# sepal_length,sepal_width,petal_length,petal_width,species
+label_mapping = {"Iris-setosa": 0, "Iris-versicolor": 1}
+
+# Train data
 data = []
 
 with open('IRIS.txt', 'r') as file:
@@ -10,18 +13,12 @@ with open('IRIS.txt', 'r') as file:
         label = line[-1]
         data.append((features, label))
 
-# Convert labels to numerical values
-label_mapping = {"Iris-setosa": 0, "Iris-versicolor": 1}
-data = [(features, label_mapping[label]) for features, label in data]
-
-# Initialize weights and bias
+# Perceptron training algorithm
 num_features = len(data[0][0])
 weights = [0.0] * num_features
 bias = 0.0
-
-# Perceptron training algorithm
 learning_rate = 0.01
-num_epochs = 100
+num_epochs = 2
 
 for epoch in range(num_epochs):
     correct_predictions = 0
@@ -29,7 +26,7 @@ for epoch in range(num_epochs):
     for features, label in data:
         weighted_sum = sum(w * x for w, x in zip(weights, features)) + bias
         predicted = 1 if weighted_sum > 0 else 0
-        error = label - predicted
+        error = label_mapping[label] - predicted
 
         if error == 0:
             correct_predictions += 1
@@ -40,7 +37,7 @@ for epoch in range(num_epochs):
     if correct_predictions == len(data):
         break
 
-# Test the perceptron
+# Test data
 test_data = []
 
 with open('IRISTest.txt', 'r') as file:
